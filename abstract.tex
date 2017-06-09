@@ -1,0 +1,20 @@
+\begin{abstract}
+
+Secrets, such as database passwords, internal host names, and private keys are 
+a key part of security systems.  Unfortunately, secrets are hard to securely 
+distribute, rotate, and revoke, especially in distributed systems like
+microservices.
+
+To address these issues, a technique called Docker secrets has been developed.
+Docker secrets automatically provisions containers with secrets without
+requiring the use of environment variables.  It also ensures that applications
+obtains a secret in a natural way, reading a file from disk, instead of 
+requiring application modification to call a custom API.  Additionally, 
+Docker secrets are securely distributed and are never stored or transmitted 
+in an unencrypted form.  Information stored in Docker secrets can be changed 
+and revoked automatically, which enables better dev ops security practices, 
+such as hourly TLS key rotation.  The deployment of Docker secrets has been
+in production since Docker 1.13, and is running in ?millions? of containers.
+
+
+\end{abstract}

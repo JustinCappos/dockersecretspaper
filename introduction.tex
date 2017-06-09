@@ -1,0 +1,134 @@
+\section{Introduction}
+\label{SEC:introduction}
+
+\cappos{I think there is some quote about it being hard to keep secrets.}
+
+Secrets are hard to keep, especially when they are shared.  Computer systems
+are not immmune to this phenomenon.  
+One of the most challenging problems
+involves the effective provisioning of secrets.  Common secrets of this
+sort are TLS keys and certificates, passwords, internal server names, and SSH 
+keys \cappos{possible cites}.  
+
+Unfortunately, provisioning secrets securely is hard, leading to unintended
+disclosure of sensitive information.  Fairly commonly, secrets are 
+accidentally checked into version control systems, emitted in logs, or 
+...   Furthermore, due to the difficulty of secure provisioning, secrets
+are also commonly shared between test and production environments, leading
+to both accidents and malicious behavior.
+\cappos{mention you can give Travis secrets in some way.  However, it leaks 
+those secrets by printing them in log files (unencrypted).}
+
+\cappos{Perhaps motivate how containers / service computing is increasing 
+the number of small, distributed items in a server here.}
+
+The reason why it is hard to securely provision
+secrets is due to four factors.  
+\begin{itemize}
+\item {\bf API.} First, the mechanisms used to provide
+secrets, such as environment variables or custom APIs, require substantial
+vigilence from dev ops personnel to avoid being leaked~\cappos{cite 
+Perforce was storing FreeBSD core
+dumps.  Those core dumps had environment variables (w/ secrets) that were
+available publicly accidentally.}   
+\item {\bf persistance.} Second, secrets must be stored
+\emph{somewhere} to survive power cycling.  There needs to be a way to 
+securely persist secrets so that an attacker cannot gain access.
+\item {\bf distribution.} Third, the secrets must be securely distributed
+to an array of different container or service instances.  Ensuring that
+each recipient is authorized to receive a secret is paramount, as is
+following the principle of least privilege to provide only the needed
+secrets.
+\item {\bf rotation.} Finally, despite the best effort of systems
+implementers, history has shown that security bugs arise in even
+the best tested code.  It is important to have a secure, responsive, and
+usable mechanism for revoking and rotating secrets.  
+\end{itemize}
+
+
+%Brief:
+%dm-verify / secure dep / image resolution.  Just want to be sure we have 
+%some way to explain how we know who to give the secret to in the first place
+%and what information to share.
+%Run system services in containers
+%
+%Core: 
+%+ Secure container platform / swarm setup (Swarmkit / Notary)
+%+ Root of trust rotation
+%+ Rotate keys / certs in and out of the hands of third parties
+%+ secure node introduction.  How infrakit gets keys there in the first place.
+%(Infrakit / Swarmkit)
+%+ reverse uptime to bound liveness of nodes.  (Infrakit)
+%(Can you enforce this on a compromised system?)  
+%+ Mutual TLS between nodes. (Is this Swarmkit???)
+
+
+
+
+In this paper, we present \sysname, a novel technique for addressing
+the secret distribution problem in distributed systems.  While
+\sysname is part of a broader ecosystem, it primarily extends three key 
+components (SwarmKit, InfraKit, and Notary) to distribute, persist, and 
+rotate secrets.  Containers are securely validated prior to secret 
+information being shared with them through the use of cryptographic node
+identities.  Much like the rights field and check bits concepts common
+to many capability-based access control systems, these identities embed
+node roles, root CA information, and proof of the right to join the swarm
+in X509 certificates.  
+
+Shared secrets are also used to transparently set up secure intra-service 
+and inter-service communications channels.  All communication between
+services \cappos{even on the same physical server?} is done using mutual
+TLS authentication.  This prevents man-in-the-middle attackers from
+intercepting communications between services or impersonating a service
+in communications.  
+
+\sysname is designed to minimize the impact of a successful attack, with
+key rotation a central part of the design.  All keys can be transparently
+rotated without operator or service intervention \cappos{???}.  
+This includes rotating the root of trust inside of a set of containers,
+possibly migrating trust to and from third party CAs as desired.   The
+ability to quickly and seamlessly rotate keys  means that keys may be 
+replaced often --- limiting an attacker's ability to cause damage after 
+a successful breach.  In fact, in production many users of \sysname
+use this mechanism to automatically rotate their secrets every hour.
+
+To further reduce the impact of a compromise, our work introduces the 
+concept of \emph{reverse uptime}.  Reverse uptime provides a duration which
+a service is permitted to live.  Once this value reaches zero, the service
+is automatically killed \cappos{How does this work?  Is the cryptographic
+node identity also revoked?  As I understand it, these would be separate
+mechanisms...}  Thus an attacker that has successfully compromised a
+service only has a limited amount of time to utilize that access.
+
+\sysname has been deployed in production in Docker since 1.13, leading to 
+use in millions of swarms.  This practical experience, uncovered several
+non-obvious lessons from \sysname.  First, ...   Second, ..., Finally, ...
+As a result, \sysname has improved the security of millions of containers.
+
+
+The primary contributions of this work are as follows:
+
+\begin{itemize}
+
+\item This work describes a series of novel techniques to enable secrets to
+be securely shared between containers.  This includes techniques to
+securely introduce nodes to each other, automatic provisioning of mutual
+TLS connections, as well as reverse uptime and rotation of secrets to bound 
+the impact of a compromise.
+
+\item \sysname was designed based upon pragmatic decisions that maximize 
+ease of deployment.  For example, \sysname maps in each secret
+as though it is a file in the file system.  This means that applications
+need not be modified to use \sysname.  
+
+\item Careful engineering of \sysname demonstrates that security need not
+come at the cost of performance.  \sysname adds only X\% overhead in 
+bandwidth, a XXms container startup latency, and XXXX when rotating
+secrets.
+
+
+\end{itemize}
+
+
+
