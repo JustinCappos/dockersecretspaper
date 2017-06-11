@@ -69,8 +69,9 @@ In this paper, we present \sysname, a novel technique for addressing
 the secret distribution problem in distributed systems.  While
 \sysname is part of a broader ecosystem, it primarily extends three key 
 components (SwarmKit, InfraKit, and Notary) to distribute, persist, and 
-rotate secrets.  Containers are securely validated prior to secret 
-information being shared with them through the use of cryptographic node
+rotate secrets.  Containers are securely validated for both correctness and
+freshness.  Validation is done prior to secret information being shared with 
+them through the use of cryptographic node
 identities.  Much like the rights field and check bits concepts common
 to many capability-based access control systems, these identities embed
 node roles, root CA information, and proof of the right to join the swarm
@@ -93,17 +94,24 @@ replaced often --- limiting an attacker's ability to cause damage after
 a successful breach.  In fact, in production many users of \sysname
 use this mechanism to automatically rotate their secrets every hour.
 
-To further reduce the impact of a compromise, our work introduces the 
+
+To ensure that images are correct and fresh, this work introduces the 
 concept of \emph{reverse uptime}.  Reverse uptime provides a duration which
 a service is permitted to live.  Once this value reaches zero, the service
 is automatically killed \cappos{How does this work?  Is the cryptographic
 node identity also revoked?  As I understand it, these would be separate
-mechanisms...}  Thus an attacker that has successfully compromised a
-service only has a limited amount of time to utilize that access.
+mechanisms...}  This ensures that services constantly are installing fresh
+images.  It also may have the side effect of reducing the amount of time an
+attaker that compromises a service has to utilize that access.
 
+Since \sysname is designed to be seamless to deploy, it is easy use 
+in many 
 \sysname has been deployed in production in Docker since 1.13, leading to 
 use in millions of swarms.  This practical experience, uncovered several
-non-obvious lessons from \sysname.  First, ...   Second, ..., Finally, ...
+non-obvious lessons from \sysname.  First, while \sysname does not have the 
+same security guarantees as specialized designs (e.g., SGX, which requires
+specialized hardware), the usability and seamless nature of \sysname makes it
+possible to quickly deploy in many environments.    Second, ..., Finally, ...
 As a result, \sysname has improved the security of millions of containers.
 
 
@@ -114,8 +122,8 @@ The primary contributions of this work are as follows:
 \item This work describes a series of novel techniques to enable secrets to
 be securely shared between containers.  This includes techniques to
 securely introduce nodes to each other, automatic provisioning of mutual
-TLS connections, as well as reverse uptime and rotation of secrets to bound 
-the impact of a compromise.
+TLS connections (even for the application's connections), as well as reverse 
+uptime and rotation of secrets to bound the impact of a compromise.
 
 \item \sysname was designed based upon pragmatic decisions that maximize 
 ease of deployment.  For example, \sysname maps in each secret

@@ -1,15 +1,15 @@
 \begin{abstract}
 
-Secrets, such as database passwords, internal host names, and private keys are 
+Secrets, such as database passwords and private keys are 
 a key part of security systems.  Unfortunately, secrets are hard to securely 
-distribute, rotate, and revoke, especially in distributed systems like
-microservices.
+distribute, rotate, and revoke, especially without changing existing software.
 
-To address these issues, a technique called Docker secrets has been developed.
-Docker secrets automatically provisions containers with secrets without
+To address these issues, a technique called \sysname has been developed.
+\sysname automatically provisions containers with secrets without
 requiring the use of environment variables.  It also ensures that applications
 obtains a secret in a natural way, reading a file from disk, instead of 
-requiring application modification to call a custom API.  Additionally, 
+requiring application modification to call a custom API or to possess 
+specialized hardware (e.g., SGX).  Additionally, 
 Docker secrets are securely distributed and are never stored or transmitted 
 in an unencrypted form.  Information stored in Docker secrets can be changed 
 and revoked automatically, which enables better dev ops security practices, 
